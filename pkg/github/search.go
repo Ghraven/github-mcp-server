@@ -13,7 +13,7 @@ import (
 )
 
 // SearchRepositories creates a tool to search for GitHub repositories.
-func SearchRepositories(client *github.Client, t translations.TranslationHelperFunc) (tool mcp.Tool, handler server.ToolHandlerFunc) {
+func SearchRepositories(getClient func(ctx context.Context) *github.Client, t translations.TranslationHelperFunc) (tool mcp.Tool, handler server.ToolHandlerFunc) {
 	return mcp.NewTool("search_repositories",
 			mcp.WithDescription(t("TOOL_SEARCH_REPOSITORIES_DESCRIPTION", "Search for GitHub repositories")),
 			mcp.WithString("query",
@@ -39,6 +39,7 @@ func SearchRepositories(client *github.Client, t translations.TranslationHelperF
 				},
 			}
 
+			client := getClient(ctx)
 			result, resp, err := client.Search.Repositories(ctx, query, opts)
 			if err != nil {
 				return nil, fmt.Errorf("failed to search repositories: %w", err)
@@ -63,7 +64,7 @@ func SearchRepositories(client *github.Client, t translations.TranslationHelperF
 }
 
 // SearchCode creates a tool to search for code across GitHub repositories.
-func SearchCode(client *github.Client, t translations.TranslationHelperFunc) (tool mcp.Tool, handler server.ToolHandlerFunc) {
+func SearchCode(getClient func(ctx context.Context) *github.Client, t translations.TranslationHelperFunc) (tool mcp.Tool, handler server.ToolHandlerFunc) {
 	return mcp.NewTool("search_code",
 			mcp.WithDescription(t("TOOL_SEARCH_CODE_DESCRIPTION", "Search for code across GitHub repositories")),
 			mcp.WithString("q",
@@ -106,6 +107,8 @@ func SearchCode(client *github.Client, t translations.TranslationHelperFunc) (to
 				},
 			}
 
+			client := getClient(ctx)
+
 			result, resp, err := client.Search.Code(ctx, query, opts)
 			if err != nil {
 				return nil, fmt.Errorf("failed to search code: %w", err)
@@ -130,7 +133,7 @@ func SearchCode(client *github.Client, t translations.TranslationHelperFunc) (to
 }
 
 // SearchUsers creates a tool to search for GitHub users.
-func SearchUsers(client *github.Client, t translations.TranslationHelperFunc) (tool mcp.Tool, handler server.ToolHandlerFunc) {
+func SearchUsers(getClient func(ctx context.Context) *github.Client, t translations.TranslationHelperFunc) (tool mcp.Tool, handler server.ToolHandlerFunc) {
 	return mcp.NewTool("search_users",
 			mcp.WithDescription(t("TOOL_SEARCH_USERS_DESCRIPTION", "Search for GitHub users")),
 			mcp.WithString("q",
@@ -173,6 +176,8 @@ func SearchUsers(client *github.Client, t translations.TranslationHelperFunc) (t
 					Page:    pagination.page,
 				},
 			}
+
+			client := getClient(ctx)
 
 			result, resp, err := client.Search.Users(ctx, query, opts)
 			if err != nil {
